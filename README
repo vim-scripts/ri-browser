@@ -1,0 +1,39 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=494
+
+Interface for browsing ri/ruby documentation.
+
+Defines the following commands:
+
+  :Ri <arg>
+      Lookup the given argument.
+
+  :RiExpand <arg>
+      Lookup the given argument but prefix the class/module name
+      when in Ri class buffer[1].
+
+and the following mappings:
+
+  <M-i>  Clean prompting for lookup word.
+  <M-I>  Prefix class/module if any before prompting. (ex: Array#)
+
+Lookups can also be done using the word under the cursor (WUC)
+
+  <M-]>
+      Gready expansion of WUC. This will work for both the
+      'Array.new', 'Hash#each' and 'Kernel::block_given?' way of
+      specifying a method.
+
+  <M-[>
+      Not so gready expansion of WUC but will also prefix the
+      class/module when in a Ri class/module buffer[1]. This makes
+      it possible to lookup 'Array#each' by invoking it with
+      the cursor places on 'each' in the 'Array' class buffer. 
+
+[1] A Ri class/module buffer is a buffer showing all the methods belonging
+    to a class or modul. Example: typing ':Ri Hash' followed by enter in
+    normal mode with the ri plugin loaded will open the 'Hash' class buffer.
+
+Comes with syntax coloring of the Ri buffer.
+
+Inspired by ri stuff at http://www.rubygarden.org/ruby?VimExtensions
+Credits to vimscript #90 for much of the lovely code.
