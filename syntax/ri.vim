@@ -13,25 +13,33 @@ endif
 
 syn include @riRuby <sfile>:p:h/ruby.vim
 
-syn region	riDelimRegion	start=+^---*+ end=+^---*+ contains=riApiCode,@riTitle
+syn region	riNonUniqueTerm	start=+^\w+ end=+^\s\{5}\w.*$+ contains=riTermString,riMethodSpec,riClassFold
+syn match	riTermString	contained "`[^']*'"
+syn match	riClassFold	contained "^\s\{5}.* {{{" contains=riClassOrModule
 
-" Ruby code should be matched over moere lines. Not just one at the time.
-syn region	riApiCode	contained start=+^\s\{5}+ end=+\(->\|$\)+me=s-1 keepend contains=riComma,@riRuby nextgroup=riEvalsto
-syn match	riEvalsTo	contained "->"
-syn match	riComma		contained ","
+syn match	riMethodSpec	contained "\([A-Z]\w*\(\#\|::\|\.\)\)\+[^, ()]\+" contains=riClassOrModule,riComma,riSeparator
+syn match	riSeparator 	contained "\(::\|\#\|\.\)"
+syn match	riClassOrModule	contained "[A-Z]\w*"
+
+syn region	riSection	start=+^---*+ end=+^---*$+ keepend contains=riMethodSpec,riApiCode,riSectionDelim
+syn match	riSectionDelim	contained "---*"
+
+syn region	riApiCode	contained start=+^\s\{5}+ end=+\(->\|$\)+me=s-1 keepend contains=riComma,riBufferType,@riRuby nextgroup=riEvalsto
+syn match	riBufferType	contained "^\s\{5}\(class\|module\):"
+syn match	riEvalsTo	contained "->.*$"	contains=riOutput
+"syn match	riComma		contained ","
+syn region	riOutput	contained start=+->+ms=s+3 end=+$+me=s-1 keepend
 
 " Keep below riApiCode but before riExampleCode ;)
-syn match	riDescription	"^\s\{5}.*$"
+syn match	riDescription	"^\s\{5}.*$"	contains=riString,riMethodSpec
+syn match	riString	contained "``[^']\+''"
 
-syn cluster	riTitle		contains=riClassOrModule,riAppend,riMethod
+syn region	riExampleCode	start=+^\s\{8}+ end=+\(#=>\|$\)+me=s-1 contains=@riRuby nextgroup=riEvalsTo
+syn match	riEvalsTo	"#=>.*$" contains=riRubyOutput
+syn region	riRubyOutput	contained start=+#=>+ms=s+3 end=+$+me=s-1 keepend contains=@riRuby
 
-syn match	riClassOrModule	contained "[A-Z]\w*"	nextgroup=riAppend
-syn match	riAppend	contained "\(\#\|::\)"	nextgroup=riMethod
-syn match	riMethod	contained "[a-z_[\]=?]*$"
-
-syn region	riExampleCode	start=+^\s\{8}+ end=+\(#=>\|$\)+me=s-1 keepend contains=@riRuby nextgroup=riEvalsTo
-syn match	riEvalsTo	"#=>.*$" contains=riOutput
-syn region	riOutput	start=+#=>+ms=s+3 end=+$+me=s-1 keepend contains=@riRuby
+syn region	riProduces	start=+\s\{5}produces:+ skip=+^\s\{8}.*$+ end=+^\(\s\{5}\w.*\)\?$+ contains=riProduct
+syn match	riProduct	contained "\s\{8}.*$"
 
 syn sync minlines=40
 
@@ -46,14 +54,20 @@ if version >= 508 || !exists("did_help_syntax_inits")
     command -nargs=+ HiLink hi def link <args>
   endif
 
-  HiLink riDelimiter		Delimiter
-  HiLink riDelimRegion		Delimiter
+  HiLink riSectionDelim		PreProc
+  HiLink riUniqueMethod		Keyword
   HiLink riClassOrModule	Identifier
-  HiLink riMethod		Keyword
-  HiLink riUnmatched		Special
-  HiLink riAppend		PreProc
-  HiLink riClassFunction	Operator
-  HiLink riEvalsTo		PreProc
+  HiLink riMethodSpec		Keyword
+  HiLink riSeparator		SpecialChar
+  HiLink riNonUniqueTerm	Comment
+  HiLink riTermString		String
+  HiLink riString		String
+  HiLink riBufferType		Type
+  HiLink riEvalsTo		Delimiter
+  HiLink riOutput		Comment
+  HiLink riClassFold		Comment
+  HiLink riProduces		Comment
+  HiLink riProduct		String
   HiLink riDescription		Comment
 
 delcommand HiLink
@@ -61,4 +75,4 @@ endif
 
 let b:current_syntax = "ri"
 
-" vim: ts=8 sw=2
+" vim: ts=8 sw=2 fdm=manual
